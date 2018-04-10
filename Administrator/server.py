@@ -36,12 +36,14 @@ def home():
 
 @app.route("/administrator_otp")
 def otp():
+    conn = pymysql.connect(host='128.199.88.139', port=64566, user='root', passwd='ergweprjgwerighjwethjtr2315', db='tenderBartik')
+    cur = conn.cursor()
     query = 'SELECT * FROM lineUser'
     cur.execute(query)
     counter = 0
     p = gen_pass()
     for i in cur:
-        print(i[1])
+        #print(i[1])
         if i[1] == p:
             counter = counter + 1
     if counter == 1:
@@ -60,12 +62,18 @@ def verify(uid,text):
     cur = conn.cursor()
     if len(text) == 5:
         query = 'SELECT * FROM lineUser where otp ="'+text+'" and role="Administrator"'
-        cur.execute(query)
+        b = cur.execute(query)
+        print(b)
         counter = 0
         for i in cur: 
             counter = counter + 1
         temp = 'Invalid message'
         if counter != 0:
+            conn = pymysql.connect(host='128.199.88.139', port=64566, user='root', passwd='ergweprjgwerighjwethjtr2315', db='tenderBartik', autocommit=True)
+            cur = conn.cursor()
+            query = 'UPDATE lineUser SET line_id="'+uid+'" WHERE otp="'+text+'" AND role="Administrator"'
+            a = cur.execute(query)
+            print(a)
             temp = 'Register successfully'
         payload = {}
         payload['to'] = [uid]
@@ -83,13 +91,14 @@ def verify(uid,text):
         msg['type'] = 'text'
         msg['text'] = 'Invalid message'
         payload['messages'] = [msg]
-        print(payload)
         header = { 'content-type' : contentType, 'Authorization' : authorization }
         r = requests.post( url, data=json.dumps(payload), headers=header ) 
     return "ADMINISTRATOR VERIFICATION"
 
 @app.route("/list_administrator/<string:uid>")
 def list_administrator(uid):
+    conn = pymysql.connect(host='128.199.88.139', port=64566, user='root', passwd='ergweprjgwerighjwethjtr2315', db='tenderBartik')
+    cur = conn.cursor()
     query = ("SELECT fname, lname FROM users WHERE role ='"+"Administrator"+"'")
     cur.execute(query)
     count = 0
@@ -127,6 +136,8 @@ def list_administrator(uid):
 
 @app.route("/list_supervisor/<string:uid>")
 def list_supervisor(uid):
+    conn = pymysql.connect(host='128.199.88.139', port=64566, user='root', passwd='ergweprjgwerighjwethjtr2315', db='tenderBartik')
+    cur = conn.cursor()
     query = ("SELECT fname, lname FROM users WHERE role ='"+"Supervisor"+"'")
     cur.execute(query)
     count = 0
@@ -164,6 +175,8 @@ def list_supervisor(uid):
 
 @app.route("/list_subordinate/<string:uid>")
 def list_subordinate(uid):
+    conn = pymysql.connect(host='128.199.88.139', port=64566, user='root', passwd='ergweprjgwerighjwethjtr2315', db='tenderBartik')
+    cur = conn.cursor()
     query = ("SELECT fname, lname FROM users WHERE role ='"+"Subordinate"+"'")
     cur.execute(query)
     count = 0
