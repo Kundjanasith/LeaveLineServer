@@ -4,6 +4,8 @@ import requests
 import json
 import datetime
 import pymysql
+import pycurl
+import json
 
 app = Flask(__name__, static_folder=".", template_folder=".")
 
@@ -12,6 +14,10 @@ cur = conn.cursor()
 
 token = open("token.txt","r")
 token = token.read()
+
+url = 'https://api.line.me/v2/bot/message/multicast'
+contentType = 'application/json'
+authorization = 'Bearer '+token[:-1]
 
 @app.after_request
 def add_headers(response):
@@ -35,27 +41,106 @@ def list_administrator(uid):
        count = count + 1
     content = ""
     if count == 0:
-        content = "\"NoAdministrator\""
+        content = "There is no administrator\n"
     elif count == 1:
-        content = "\""+str(count)+"Administrator\""
+        content = "There is "+str(count)+" administrator\n"
     else:
-        content = "\'\"There are "+str(count)+" administrators\"\'"
-    print(content)
-    command = "bash list_administrator.sh "+uid+" \'"+content+"\' "+token
-    os.system(command)
-    '''
-    counter = 0
+        content = "There are "+str(count)+" administrators\n"
+    count = 0
     cur.execute(query)
     for i in cur:
-        print(counter)
-        counter = counter + 1
-        text = ""
-        text = str(counter) + ":" + i[0] + "" + i[1]
-        print(text)
-        os.system("bash list_administrator.sh "+uid+" "+text+" "+token)
-        break
-    '''
+        count = count + 1
+        content = content + str(count) +" : "+ i[0] + "  " +i[1]+"\n" 
+    print(content)
+    url = 'https://api.line.me/v2/bot/message/multicast'
+    contentType = 'application/json'
+    authorization = 'Bearer '+token[:-1]
+    print(authorization)
+    payload = {}
+    payload['to'] = [uid]
+    msg = {}
+    msg['type'] = 'text'
+    msg['text'] = content
+    payload['messages'] = [msg]
+    print(payload)
+    header = { 'content-type' : contentType, 'Authorization' : authorization }
+    r = requests.post( url, data=json.dumps(payload), headers=header )
+    print(r)
     return "LIST ADMINSTRATOR"
+
+@app.route("/list_supervisor/<string:uid>")
+def list_supervisor(uid):
+    query = ("SELECT fname, lname FROM users WHERE role ='"+"Supervisor"+"'")
+    cur.execute(query)
+    count = 0
+    for i in cur:
+       print(i[0]+"   "+i[1])
+       count = count + 1
+    content = ""
+    if count == 0:
+        content = "There is no supervisor\n"
+    elif count == 1:
+        content = "There is "+str(count)+" supervisor\n"
+    else:
+        content = "There are "+str(count)+" supervisors\n"
+    count = 0
+    cur.execute(query)
+    for i in cur:
+        count = count + 1
+        content = content + str(count) +" : "+ i[0] + "  " +i[1]+"\n"  
+    print(content)
+    url = 'https://api.line.me/v2/bot/message/multicast'
+    contentType = 'application/json'
+    authorization = 'Bearer '+token[:-1]
+    print(authorization)
+    payload = {}
+    payload['to'] = [uid]
+    msg = {}
+    msg['type'] = 'text'
+    msg['text'] = content
+    payload['messages'] = [msg]
+    print(payload)
+    header = { 'content-type' : contentType, 'Authorization' : authorization }
+    r = requests.post( url, data=json.dumps(payload), headers=header )
+    print(r)
+    return "LIST SUPERVISOR"
+
+@app.route("/list_subordinate/<string:uid>")
+def list_subordinate(uid):
+    query = ("SELECT fname, lname FROM users WHERE role ='"+"Subordinate"+"'")
+    cur.execute(query)
+    count = 0
+    for i in cur:
+       print(i[0]+"   "+i[1])
+       count = count + 1
+    content = ""
+    if count == 0:
+        content = "There is no subordinate\n"
+    elif count == 1:
+        content = "There is "+str(count)+" subordinate\n"
+    else:
+        content = "There are "+str(count)+" subordinates\n"
+    count = 0
+    cur.execute(query)
+    for i in cur:
+        count = count + 1
+        content = content + str(count) +" : "+ i[0] + "  " +i[1]+"\n"  
+    print(content)
+    url = 'https://api.line.me/v2/bot/message/multicast'
+    contentType = 'application/json'
+    authorization = 'Bearer '+token[:-1]
+    print(authorization)
+    payload = {}
+    payload['to'] = [uid]
+    msg = {}
+    msg['type'] = 'text'
+    msg['text'] = content
+    payload['messages'] = [msg]
+    print(payload)
+    header = { 'content-type' : contentType, 'Authorization' : authorization }
+    r = requests.post( url, data=json.dumps(payload), headers=header )
+    print(r)
+    return "LIST SUBORDINATE"
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=22211)
