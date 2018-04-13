@@ -31,10 +31,10 @@ def add_headers(response):
 
 @app.route("/")
 def home():
-    return "KU LEAVE LINE SERVER [SUPERVISOR]"
+    return "KU LEAVE LINE SERVER [SUBORDINATE]"
 
 
-@app.route("/supervisor_otp")
+@app.route("/subordinate_otp")
 def otp():
     conn = pymysql.connect(host='128.199.88.139', port=64566, user='root', passwd='ergweprjgwerighjwethjtr2315', db='tenderBartik')
     cur = conn.cursor()
@@ -56,12 +56,12 @@ def gen_pass():
     password = ''.join(secrets.choice(alphabet) for i in range(5))
     return password
     
-@app.route("/supervisor_verify/<string:uid>/<string:text>")
+@app.route("/subordinate_verify/<string:uid>/<string:text>")
 def verify(uid,text):
     conn = pymysql.connect(host='128.199.88.139', port=64566, user='root', passwd='ergweprjgwerighjwethjtr2315', db='tenderBartik')
     cur = conn.cursor()
     if len(text) == 5:
-        query = 'SELECT * FROM lineUser where otp ="'+text+'" and role="Supervisor"'
+        query = 'SELECT * FROM lineUser where otp ="'+text+'" and role="Subordinate"'
         b = cur.execute(query)
         print(b)
         counter = 0
@@ -71,7 +71,7 @@ def verify(uid,text):
         if counter != 0:
             conn = pymysql.connect(host='128.199.88.139', port=64566, user='root', passwd='ergweprjgwerighjwethjtr2315', db='tenderBartik', autocommit=True)
             cur = conn.cursor()
-            query = 'UPDATE lineUser SET line_id="'+uid+'" WHERE otp="'+text+'" AND role="Supervisor"'
+            query = 'UPDATE lineUser SET line_id="'+uid+'" WHERE otp="'+text+'" AND role="Subordinate"'
             a = cur.execute(query)
             print(a)
             temp = 'Register successfully'
@@ -93,45 +93,22 @@ def verify(uid,text):
         payload['messages'] = [msg]
         header = { 'content-type' : contentType, 'Authorization' : authorization }
         r = requests.post( url, data=json.dumps(payload), headers=header ) 
-    return "SUPERVISOR VERIFICATION"
+    return "SUBORDINATE VERIFICATION"
 
 @app.route("/list_tasks/<string:uid>")
 def tasks(uid):
     conn = pymysql.connect(host='128.199.88.139', port=64566, user='root', passwd='ergweprjgwerighjwethjtr2315', db='tenderBartik')
     cur = conn.cursor()
-    query = 'SELECT * FROM lineTask WHERE supervisor=(SELECT id FROM lineUser WHERE line_id="'+uid+'" AND role="Supervisor")'
-    cur.execute(query)
-    content = ""
-    print("------------")
-    allTasks = []
-    for i in cur:
-        allTasks.append(i)
-    print("------------")
-    print(len(allTasks))
-    if len(allTasks) == 0:
-        content = content + "There is no tasks\n"
-    elif len(allTasks) == 1:
-        content = content + "There is 1 task\n"
-    else:
-        content = content + "There are "+str(len(allTasks))+" tasks\n"
-    counterT = 0
-    for j in allTasks:
-        counterT = counterT + 1
-        content = content + str(counterT) + " . \n"
-        content = content + " - Task name : \n\t" + j[3] + "\n"
-        content = content + " - Start date : \n\t" + j[4] + "\n"
-        content = content + " - End date : \n\t" + j[5] + "\n"
-        content = content + " - Subordinate : \n\t" + j[2] + "\n"
     payload = {}
     payload['to'] = [uid]
     msg = {}
     msg['type'] = 'text'
-    msg['text'] = content[:-1]
+    msg['text'] = 'List task'
     payload['messages'] = [msg]
     header = { 'content-type' : contentType, 'Authorization' : authorization }
     r = requests.post( url, data=json.dumps(payload), headers=header ) 
     return "LIST TASKS"
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=22212)
+    app.run(host='0.0.0.0', port=22213)
 
