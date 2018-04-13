@@ -99,11 +99,29 @@ def verify(uid,text):
 def tasks(uid):
     conn = pymysql.connect(host='128.199.88.139', port=64566, user='root', passwd='ergweprjgwerighjwethjtr2315', db='tenderBartik')
     cur = conn.cursor()
+    query = 'SELECT * FROM lineTask WHERE subordinate=(SELECT id FROM lineUser WHERE line_id="'+uid+'" AND role="Subordinate")'
+    cur.execute(query)
+    content = ""
+    allTasks = []
+    for i in cur:
+       allTasks.append(i)
+    if len(allTasks) == 0:
+       content = content + "There is no tasks\n"
+    elif len(allTasks) == 1:
+       content = content + "There is 1 task\n"
+    else:
+       content = content + "There are "+str(len(allTasks))+" tasks\n"
+    counterT = 0
+    for j in allTasks:
+       counterT = counterT + 1
+       content = content + " - Task name : \n\t"+ j[3] + "\n"
+       content = content + " - Start date : \n\t"+ j[4] + "\n"
+       content = content + " - End date : \n\t"+ j[5] + "\n"
     payload = {}
     payload['to'] = [uid]
     msg = {}
     msg['type'] = 'text'
-    msg['text'] = 'List task'
+    msg['text'] = content[:-1]
     payload['messages'] = [msg]
     header = { 'content-type' : contentType, 'Authorization' : authorization }
     r = requests.post( url, data=json.dumps(payload), headers=header ) 
