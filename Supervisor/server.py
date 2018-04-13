@@ -34,7 +34,7 @@ def home():
     return "KU LEAVE LINE SERVER [SUPERVISOR]"
 
 
-@app.route("/SUPERVISOR_otp")
+@app.route("/supervisor_otp")
 def otp():
     conn = pymysql.connect(host='128.199.88.139', port=64566, user='root', passwd='ergweprjgwerighjwethjtr2315', db='tenderBartik')
     cur = conn.cursor()
