@@ -43,6 +43,7 @@ def otp():
     counter = 0
     p = gen_pass()
     for i in cur:
+        #print(i[1])
         if i[1] == p:
             counter = counter + 1
     if counter == 1:
@@ -110,55 +111,15 @@ def tasks(uid):
        content = content + "There is 1 task\n"
     else:
        content = content + "There are "+str(len(allTasks))+" tasks\n"
-    counterT = 0
-    for j in allTasks:
-       counterT = counterT + 1
-       content = content + str(counterT)+".\n"
-       content = content + " - Task name : \n\t"+ j[3] + "\n"
-       content = content + " - Start date : \n\t"+ j[4] + "\n"
-       content = content + " - End date : \n\t"+ j[5] + "\n"
     payload = {}
     payload['to'] = [uid]
     msg = {}
     msg['type'] = 'text'
-    msg['text'] = content[:-1]
+    msg['text'] = 'List task'
     payload['messages'] = [msg]
     header = { 'content-type' : contentType, 'Authorization' : authorization }
     r = requests.post( url, data=json.dumps(payload), headers=header ) 
     return "LIST TASKS"
-
-@app.route("/list_leaves/<string:uid>")
-def leaves(uid):
-    conn = pymysql.connect(host='128.199.88.139', port=64566, user='root', passwd='ergweprjgwerighjwethjtr2315', db='tenderBartik')
-    cur = conn.cursor()
-
-@app.route("/request_leave/<string:uid>")
-def request(uid):
-    conn = pymysql.connect(host='128.199.88.139', port=64566, user='root', passwd='ergweprjgwerighjwethjtr2315', db='tenderBartik')
-    cur = conn.cursor()
-    payload = {}
-    payload['to'] = [uid]
-    msg = {}
-    msg['type'] = 'template'
-    msg['altText'] = 'this is confirm template'
-    temp = {}
-    temp['type'] = 'confirm'
-    temp['text'] = 'Leave notification'
-    a1 = {}
-    a2 = {}
-    a1['type'] = 'message'
-    a1['label'] = 'Approved'
-    a1['text'] = 'Approved'
-    a2['type'] = 'message'
-    a2['label'] = 'Not Approved'
-    a2['text'] = 'Not Approved'
-    actions = [a1,a2]
-    temp['actions'] = actions
-    msg['template'] = temp
-    payload['messages'] = [msg]
-    header = { 'content-type' : contentType, 'Authorization' : authorization }
-    r = requests.post( url, data=json.dumps(payload), headers=header ) 
-    return "REQUEST LEAVE"
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=22213)
