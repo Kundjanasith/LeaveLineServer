@@ -157,10 +157,16 @@ def notification():
     end_date = request.form["end_date"]
     line_id = request.form["line_id"]
     task_id = request.form["task_id"]
+    leave_id = request.form["leave_id"]
+    auth = request.form["authorization"]
+    cache = open(leave_id,"w")
+    cache.write(auth)
+    cache.close()
     print(start_date)
     print(end_date)
     print(line_id)
     print(task_id)
+    print(auth)
     url = 'https://api.line.me/v2/bot/message/multicast'
     contentType = 'application/json'
     authorization = 'Bearer '+token[:-1]
@@ -171,18 +177,18 @@ def notification():
     msg['altText'] = 'Leave Notification'
     temp = {} 
     temp['type'] = 'confirm'
-    tempTxt = 'Task id : '+task_id+'\n'
+    tempTxt = 'Leave id : '+leave_id+'\n'
     tempTxt = tempTxt + '- Start date : '+start_date+'\n'
     tempTxt = tempTxt + '- End date : '+end_date 
     temp['text'] = tempTxt
     ap = {}
     ap['type'] = 'message'
     ap['label'] = 'Approved'
-    ap['text'] = '['+task_id+'] : Approved'
+    ap['text'] = '['+leave_id+']:Approved'
     nap = {}
     nap['type'] = 'message'
     nap['label'] = 'Not Approved'
-    nap['text'] = '['+task_id+'] : Not Approved'
+    nap['text'] = '['+leave_id+']:NotApproved'
     act = [ap,nap]
     temp['actions'] = act
     msg['template'] = temp
@@ -190,7 +196,38 @@ def notification():
     header = { 'content-type' : contentType, 'Authorization' : authorization }
     r = requests.post( url, data=json.dumps(payload), headers=header ) 
     return "NOTIFICATION TO SUPERVISOR"
-    
+
+@app.route("/approval/<string:uid>/<string:content>") 
+def approval(uid,content):
+    print(uid)
+    print(content)
+    ax = content.split(":")
+    leave_id = ax[0][1:-1]
+    state = ax[1]
+    if state == 'Approved':
+        url = "https://limitless-falls-39048.herokuapp.com/api/leaves/"+leave_id+"/approve"
+        cache = open(leave_id,"r")
+        auth = "P"
+        for i in cache.readlines():
+            auth = i
+        print(auth)
+        header = { 'Authorization' : auth }
+        r = requests.get( url, headers=header ) 
+        print(r.status_code)
+        print(r.content)
+    if state == 'NotApproved':
+        url = "https://limitless-falls-39048.herokuapp.com/api/leaves/"+leave_id+"/deny"
+        cache = open(leave_id,"r")
+        auth = "P"
+        for i in cache.readlines():
+            auth = i
+        print(auth)
+        header = { 'Authorization' : auth }
+        r = requests.get( url, headers=header ) 
+        print(r.status_code)
+        print(r.content)
+    return "APPROVAL"
+   
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=22212)
 
