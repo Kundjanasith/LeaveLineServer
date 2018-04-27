@@ -99,6 +99,26 @@ def verify(uid,text):
 def list_administrator(uid):
     conn = pymysql.connect(host='128.199.88.139', port=64566, user='root', passwd='ergweprjgwerighjwethjtr2315', db='tenderBartik')
     cur = conn.cursor()
+    url = 'https://api.line.me/v2/bot/message/multicast'
+    contentType = 'application/json'
+    authorization = 'Bearer '+token[:-1]
+    query = ("SELECT line_id FROM lineUser  WHERE role='"+"Administrator"+"'")
+    cur.execute(query)
+    condit = False
+    for i in cur:
+        if i[0] == uid:
+           condit = True
+    if not condit:
+        payload = {}
+        payload['to'] = [uid]
+        msg = {}
+        msg['type'] = 'text'
+        msg['text'] = 'Unauthorization'
+        payload['messages'] = [msg]
+        header = { 'content-type' : contentType, 'Authorization' : authorization }
+        r = requests.post( url, data=json.dumps(payload), headers=header ) 
+        return "Unauthorization"
+
     query = ("SELECT fname, lname FROM users WHERE role ='"+"Administrator"+"'")
     cur.execute(query)
     count = 0
@@ -126,7 +146,7 @@ def list_administrator(uid):
     payload['to'] = [uid]
     msg = {}
     msg['type'] = 'text'
-    msg['text'] = content
+    msg['text'] = content[:-1]
     payload['messages'] = [msg]
     print(payload)
     header = { 'content-type' : contentType, 'Authorization' : authorization }
@@ -138,6 +158,26 @@ def list_administrator(uid):
 def list_supervisor(uid):
     conn = pymysql.connect(host='128.199.88.139', port=64566, user='root', passwd='ergweprjgwerighjwethjtr2315', db='tenderBartik')
     cur = conn.cursor()
+    url = 'https://api.line.me/v2/bot/message/multicast'
+    contentType = 'application/json'
+    authorization = 'Bearer '+token[:-1]
+    query = ("SELECT line_id FROM lineUser  WHERE role='"+"Administrator"+"'")
+    cur.execute(query)
+    condit = False
+    for i in cur:
+        if i[0] == uid:
+           condit = True
+    if not condit:
+        payload = {}
+        payload['to'] = [uid]
+        msg = {}
+        msg['type'] = 'text'
+        msg['text'] = 'Unauthorization'
+        payload['messages'] = [msg]
+        header = { 'content-type' : contentType, 'Authorization' : authorization }
+        r = requests.post( url, data=json.dumps(payload), headers=header ) 
+        return "Unauthorization"
+
     query = ("SELECT fname, lname FROM users WHERE role ='"+"Supervisor"+"'")
     cur.execute(query)
     count = 0
@@ -165,7 +205,7 @@ def list_supervisor(uid):
     payload['to'] = [uid]
     msg = {}
     msg['type'] = 'text'
-    msg['text'] = content
+    msg['text'] = content[:-1]
     payload['messages'] = [msg]
     print(payload)
     header = { 'content-type' : contentType, 'Authorization' : authorization }
@@ -177,6 +217,26 @@ def list_supervisor(uid):
 def list_subordinate(uid):
     conn = pymysql.connect(host='128.199.88.139', port=64566, user='root', passwd='ergweprjgwerighjwethjtr2315', db='tenderBartik')
     cur = conn.cursor()
+    url = 'https://api.line.me/v2/bot/message/multicast'
+    contentType = 'application/json'
+    authorization = 'Bearer '+token[:-1]
+    query = ("SELECT line_id FROM lineUser  WHERE role='"+"Administrator"+"'")
+    cur.execute(query)
+    condit = False
+    for i in cur:
+        if i[0] == uid:
+           condit = True
+    if not condit:
+        payload = {}
+        payload['to'] = [uid]
+        msg = {}
+        msg['type'] = 'text'
+        msg['text'] = 'Unauthorization'
+        payload['messages'] = [msg]
+        header = { 'content-type' : contentType, 'Authorization' : authorization }
+        r = requests.post( url, data=json.dumps(payload), headers=header ) 
+        return "Unauthorization"
+
     query = ("SELECT fname, lname FROM users WHERE role ='"+"Subordinate"+"'")
     cur.execute(query)
     count = 0
@@ -204,7 +264,7 @@ def list_subordinate(uid):
     payload['to'] = [uid]
     msg = {}
     msg['type'] = 'text'
-    msg['text'] = content
+    msg['text'] = content[:-1]
     payload['messages'] = [msg]
     print(payload)
     header = { 'content-type' : contentType, 'Authorization' : authorization }

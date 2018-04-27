@@ -98,6 +98,25 @@ def verify(uid,text):
 def tasks(uid):
     conn = pymysql.connect(host='128.199.88.139', port=64566, user='root', passwd='ergweprjgwerighjwethjtr2315', db='tenderBartik')
     cur = conn.cursor()
+    url = 'https://api.line.me/v2/bot/message/multicast'
+    contentType = 'application/json'
+    authorization = 'Bearer '+token[:-1]
+    query = ("SELECT line_id FROM lineUser  WHERE role='"+"Subordinate"+"'")
+    cur.execute(query)
+    condit = False
+    for i in cur:
+        if i[0] == uid:
+           condit = True
+    if not condit:
+        payload = {}
+        payload['to'] = [uid]
+        msg = {}
+        msg['type'] = 'text'
+        msg['text'] = 'Unauthorization'
+        payload['messages'] = [msg]
+        header = { 'content-type' : contentType, 'Authorization' : authorization }
+        r = requests.post( url, data=json.dumps(payload), headers=header ) 
+        return "Unauthorization"
     query = 'SELECT * FROM lineTask WHERE subordinate=(SELECT id FROM lineUser WHERE line_id="'+uid+'" AND role="Subordinate")'
     cur.execute(query)
     content = ""
@@ -132,18 +151,33 @@ def leaves(uid):
     conn = pymysql.connect(host='128.199.88.139', port=64566, user='root', passwd='ergweprjgwerighjwethjtr2315', db='tenderBartik')
     cur = conn.cursor()
 
-@app.route("/request_leave/<string:uid>")
-def request(uid):
+@app.route("/request_leave/<string:lid>/<string:uid>")
+def request(lid,uid):
+    print(lid)
+    print(uid)
     conn = pymysql.connect(host='128.199.88.139', port=64566, user='root', passwd='ergweprjgwerighjwethjtr2315', db='tenderBartik')
     cur = conn.cursor()
     payload = {}
     payload['to'] = [uid]
     msg = {}
     msg['type'] = 'template'
-    msg['altText'] = 'this is confirm template'
+    msg['altText'] = 'Leave notification'
+    query('SELECT * FROM leaves WHERE id='+lid)
+    content = ""
+    cur.execute(query)
+    leaveInfo = []
+    for i in cur:
+       leaveInfo.append(i)
+    for j in leaveInfo:
+       content = "LEAVE\n"
+       content = content + "Start date" + j[3] + "\n"
+       content = content + "End date" + j[4] + "\n"
+       content = content + "Subordinate id" + j[8] + "\n"
+       content = content + "Substitution id" + j[9] + "\n"
+       content = content + "Task id" + j[10] + "\n"
     temp = {}
     temp['type'] = 'confirm'
-    temp['text'] = 'Leave notification'
+    temp['text'] = content[:-1]
     a1 = {}
     a2 = {}
     a1['type'] = 'message'

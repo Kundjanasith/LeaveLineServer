@@ -99,6 +99,25 @@ def verify(uid,text):
 def tasks(uid):
     conn = pymysql.connect(host='128.199.88.139', port=64566, user='root', passwd='ergweprjgwerighjwethjtr2315', db='tenderBartik')
     cur = conn.cursor()
+    url = 'https://api.line.me/v2/bot/message/multicast'
+    contentType = 'application/json'
+    authorization = 'Bearer '+token[:-1]
+    query = ("SELECT line_id FROM lineUser  WHERE role='"+"Supervisor"+"'")
+    cur.execute(query)
+    condit = False
+    for i in cur:
+        if i[0] == uid:
+           condit = True
+    if not condit:
+        payload = {}
+        payload['to'] = [uid]
+        msg = {}
+        msg['type'] = 'text'
+        msg['text'] = 'Unauthorization'
+        payload['messages'] = [msg]
+        header = { 'content-type' : contentType, 'Authorization' : authorization }
+        r = requests.post( url, data=json.dumps(payload), headers=header ) 
+        return "Unauthorization"
     query = 'SELECT * FROM lineTask WHERE supervisor=(SELECT id FROM lineUser WHERE line_id="'+uid+'" AND role="Supervisor")'
     cur.execute(query)
     content = ""
@@ -132,6 +151,47 @@ def tasks(uid):
     r = requests.post( url, data=json.dumps(payload), headers=header ) 
     return "LIST TASKS"
 
+@app.route("/notification", methods=['POST'])
+def notification():
+    start_date = request.form["start_date"]
+    end_date = request.form["end_date"]
+    line_id = request.form["line_id"]
+    task_id = request.form["task_id"]
+    print(start_date)
+    print(end_date)
+    print(line_id)
+    print(task_id)
+    url = 'https://api.line.me/v2/bot/message/multicast'
+    contentType = 'application/json'
+    authorization = 'Bearer '+token[:-1]
+    payload = {}
+    payload['to'] = [line_id]
+    msg = {}
+    msg['type'] = 'template'
+    msg['altText'] = 'Leave Notification'
+    temp = {} 
+    temp['type'] = 'confirm'
+    tempTxt = 'Task id : '+task_id+'\n'
+    tempTxt = tempTxt + '- Start date : '+start_date+'\n'
+    tempTxt = tempTxt + '- End date : '+end_date 
+    temp['text'] = tempTxt
+    ap = {}
+    ap['type'] = 'message'
+    ap['label'] = 'Approved'
+    ap['text'] = '['+task_id+'] : Approved'
+    nap = {}
+    nap['type'] = 'message'
+    nap['label'] = 'Not Approved'
+    nap['text'] = '['+task_id+'] : Not Approved'
+    act = [ap,nap]
+    temp['actions'] = act
+    msg['template'] = temp
+    payload['messages'] = [msg]
+    header = { 'content-type' : contentType, 'Authorization' : authorization }
+    r = requests.post( url, data=json.dumps(payload), headers=header ) 
+    return "NOTIFICATION TO SUPERVISOR"
+    
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=22212)
 
+ 
